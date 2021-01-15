@@ -1,13 +1,15 @@
 import pygame
 from funcs import *
-from levels import *
+from levels import (translate, create_level, directions_corr)
 
 
 class Arrow(pygame.sprite.Sprite):
+    # Класс, реализующий работу типа уровней со стрелочками
+
     def __init__(self, rect, direction, is_corr=False):
         super().__init__(all_sprites)
         self.rect = rect
-        self.is_corr = is_corr
+        self.is_corr = is_corr  # параметр, отвечающий за "верность" обьекта класса
         img = pygame.transform.scale(load_image('green-arrow.jpg'), (100, 100))
         self.image = img
         if direction == 'сверху':
@@ -22,22 +24,24 @@ class Arrow(pygame.sprite.Sprite):
     def update(self, *args):
         if args and self.rect.collidepoint(*(args[0])):
             if self.is_corr:
-                pygame.event.post(gener_ev)
+                pygame.event.post(gener_ev)  # создание события, генерирующего следующий уровень
             else:
-                pygame.event.post(lose_ev)
+                pygame.event.post(lose_ev)  # создание события, вызывающего экран проигрыша
                 pygame.event.post(gener_ev)
 
 
 class Button(pygame.sprite.Sprite):
+    # Класс, реализующий работу типа уровней с разноцветными кнопками
+
     def __init__(self, rect, color, is_corr=False):
         super().__init__(all_sprites)
         self.color = pygame.Color(color)
         self.rect = rect
-        self.is_corr = is_corr
+        self.is_corr = is_corr  # параметр, отвечающий за "верность" обьекта класса
         self.image = pygame.Surface((50, 50), pygame.SRCALPHA, 32)
 
     def update(self, *args):
-        self.image.fill(self.color)
+        self.image.fill(self.color)  # рендер кнопки
         if args and self.rect.x < args[0][0] < self.rect.x + self.rect.width and \
                 self.rect.y < args[0][1] < self.rect.y + self.rect.height:
             if self.is_corr:
@@ -47,11 +51,13 @@ class Button(pygame.sprite.Sprite):
                 pygame.event.post(gener_ev)
 
 
+# инициализация игры
 pygame.init()
 size = WIDTH, HEIGHT
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Тест на внимательность')
 
+# нициализация событий
 GENERATE = pygame.USEREVENT + 1
 LOSE = pygame.USEREVENT + 2
 gener_ev = pygame.event.Event(GENERATE)
@@ -69,13 +75,13 @@ arrows_place = [(int(WIDTH / 2 - 150), int(HEIGHT / 2 - 50)), (int(WIDTH / 2 - 5
 cur_score = -1
 best_score = 0
 text_counter = 'score' + str(cur_score).rjust(3)
-timer, text_timer = 5, 'time' + '5'.rjust(3)
-pygame.time.set_timer(pygame.USEREVENT, 1000)
+timer, text_timer = 5, 'time' + '5'.rjust(3)  # инициализация таймера
+pygame.time.set_timer(pygame.USEREVENT, 1000)  # привязка таймера к событию "прошла секунда"
 font_big = pygame.font.SysFont('Consolas', 30)
 
-start_screen(screen, clock)
+start_screen(screen, clock)  # стартовый экран с правилами
 running = True
-pygame.event.post(gener_ev)
+pygame.event.post(gener_ev)  # создание события, генерирующего первый уровень
 
 while running:
     for event in pygame.event.get():
@@ -104,35 +110,38 @@ while running:
             cur_score += 1
             text_counter = 'score' + str(cur_score).rjust(3)
 
-            wrong, correct, type = create_level()
-            if type == 'color':
+            wrong, correct, type = create_level()  # генерация случайного уровня двух типов
+            if type == 'color':  # тип уровня с разноцветными кнопками
                 rects = create_rect(buttons_place, True)
                 qwest = ['выберите', correct, 'кнопку']
                 for i in range(2):
                     if i == 1:
-                        Button(rects[i], translate(correct), True)
+                        Button(rects[i], translate(correct), True)  # создание верного ответа
                     else:
                         Button(rects[i], wrong)
-            elif type == 'dir':
+            elif type == 'dir':  # тип уровня со стрелками
                 rects = create_rect(arrows_place, size=100)
                 qwest = ["выберите ", "стрелку", correct]
                 for i in range(4):
                     if i == directions_corr.index(correct):
-                        Arrow(rects[i], directions_corr[i], True)
+                        Arrow(rects[i], directions_corr[i], True)  # сощдание верного ответа
                     else:
                         Arrow(rects[i], directions_corr[i])
-            timer = 5
+            timer = 5  # обновление счетчика времени
         if event.type == pygame.MOUSEBUTTONDOWN:
             all_sprites.update(event.pos)
 
     all_sprites.update()
+    # вывод текста в зависимости от типа уровня
     if isinstance(wrong, str):
         render_text(screen, qwest, (10, 10), color=wrong)
     elif isinstance(wrong, tuple):
         render_text(screen, qwest, wrong)
 
-    all_sprites.draw(screen)
+    all_sprites.draw(screen)  # отрисовка спрайтов
+    # вывод таймера
     screen.blit(font_big.render(text_timer, True, (255, 255, 255)), (int(.33 * WIDTH), int(.05 * HEIGHT)))
+    # вывод счетчика очков
     screen.blit(font_big.render(text_counter, True, (255, 255, 255)), (int(.33 * WIDTH), int(.9 * HEIGHT)))
 
     pygame.display.flip()

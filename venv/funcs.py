@@ -6,11 +6,13 @@ from cfg import *
 
 
 def terminate():
+    # функция, завершающая игру и программу
     pygame.quit()
     sys.exit()
 
 
 def load_image(name, colorkey=None):
+    # загрузка изображения из папки data
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -27,6 +29,7 @@ def load_image(name, colorkey=None):
 
 
 def create_rect(coords, rnd=False, size=50):
+    # создание pygame.Rect размера size по координатам
     if rnd:
         random.shuffle(coords)
     res = []
@@ -37,6 +40,7 @@ def create_rect(coords, rnd=False, size=50):
 
 
 def render_text(screen, txt, coords, color='white'):
+    # вывод многострочного текста, пердставленного списком строк
     font = pygame.font.Font(None, 25)
     text_coord = 40
     for line in txt:
@@ -54,6 +58,7 @@ def render_text(screen, txt, coords, color='white'):
 
 
 def start_screen(screen, clock):
+    # начальный экран с правилами
     intro_text = ["ПРАВИЛА ИГРЫ", '',
                   'Уважаемый Игрок! Вам будут предложены текстовое',
                   'задание и кликабельные варианты ответа к нему',
@@ -86,6 +91,7 @@ def start_screen(screen, clock):
 
 
 def game_over_screen(screen, cur_score, best_score, clock):
+    # конечный экран с выводом счета, лучшего счета за этот запуск
     intro_text = ['GAME OVER', '',
                   "Ваш результат:" + str(cur_score).rjust(3),
                   "Лучший результат:" + str(best_score).rjust(3), "",
