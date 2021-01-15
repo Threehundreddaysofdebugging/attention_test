@@ -1,10 +1,14 @@
 import os
 import sys
 import pygame
+import random
+from cfg import *
+
 
 def terminate():
     pygame.quit()
     sys.exit()
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
@@ -20,3 +24,91 @@ def load_image(name, colorkey=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+def create_rect(coords, rnd=False, size=50):
+    if rnd:
+        random.shuffle(coords)
+    res = []
+    for i in coords:
+        r = pygame.Rect(i[0], i[1], size, size)
+        res.append(r)
+    return res
+
+
+def render_text(screen, txt, coords, color='white'):
+    font = pygame.font.Font(None, 25)
+    text_coord = 40
+    for line in txt:
+        if txt.index(line) == 1:
+            string_rendered = font.render(line, 1, pygame.Color(color))
+        else:
+            string_rendered = font.render(line, 1, pygame.Color('white'))
+        rect = string_rendered.get_rect()
+        rect.x = coords[0]
+        rect.y = coords[1]
+        text_coord += 10
+        rect.top = text_coord
+        text_coord += rect.height
+        screen.blit(string_rendered, rect)
+
+
+def start_screen(screen, clock):
+    intro_text = ["ПРАВИЛА ИГРЫ", '',
+                  'Уважаемый Игрок! Вам будут предложены текстовое',
+                  'задание и кликабельные варианты ответа к нему',
+                  "Точно выполняйте текстовые инструкции, иначе - ",
+                  "проигрыш. Если вы не успели дать ответ за отведённое",
+                  "время - проигрыш.",
+                  'Приятной игры!']
+    fon = pygame.transform.scale(load_image('background.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 25)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+def game_over_screen(screen, cur_score, best_score, clock):
+    intro_text = ['GAME OVER', '',
+                  "Ваш результат:" + str(cur_score).rjust(3),
+                  "Лучший результат:" + str(best_score).rjust(3), "",
+                  '(нажмите любую кнопку чтобы сыграть снова)']
+    fon = pygame.transform.scale(load_image('background.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 25)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(FPS)

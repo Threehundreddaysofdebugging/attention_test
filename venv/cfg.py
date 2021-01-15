@@ -1,0 +1,2 @@
+WIDTH, HEIGHT = 501, 501
+FPS = 30
